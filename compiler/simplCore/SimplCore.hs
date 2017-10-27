@@ -117,38 +117,40 @@ getCoreToDo :: DynFlags -> [CoreToDo]
 getCoreToDo dflags
   = flatten_todos core_todo
   where
-    opt_level     = optLevel           dflags
-    phases        = simplPhases        dflags
-    max_iter      = maxSimplIterations dflags
-    rule_check    = ruleCheck          dflags
-    call_arity    = gopt Opt_CallArity                    dflags
-    strictness    = gopt Opt_Strictness                   dflags
-    full_laziness = gopt Opt_FullLaziness                 dflags
-    do_specialise = gopt Opt_Specialise                   dflags
-    do_float_in   = gopt Opt_FloatIn                      dflags
-    cse           = gopt Opt_CSE                          dflags
-    spec_constr   = gopt Opt_SpecConstr                   dflags
-    liberate_case = gopt Opt_LiberateCase                 dflags
-    late_dmd_anal = gopt Opt_LateDmdAnal                  dflags
-    static_args   = gopt Opt_StaticArgumentTransformation dflags
-    rules_on      = gopt Opt_EnableRewriteRules           dflags
-    eta_expand_on = gopt Opt_DoLambdaEtaExpansion         dflags
-    ww_on         = gopt Opt_WorkerWrapper                dflags
-    vectorise_on  = gopt Opt_Vectorise                    dflags
-    static_ptrs   = xopt LangExt.StaticPointers           dflags
+    opt_level      = optLevel           dflags
+    phases         = simplPhases        dflags
+    max_iter       = maxSimplIterations dflags
+    rule_check     = ruleCheck          dflags
+    call_arity     = gopt Opt_CallArity                    dflags
+    strictness     = gopt Opt_Strictness                   dflags
+    full_laziness  = gopt Opt_FullLaziness                 dflags
+    do_specialise  = gopt Opt_Specialise                   dflags
+    do_float_in    = gopt Opt_FloatIn                      dflags
+    cse            = gopt Opt_CSE                          dflags
+    spec_constr    = gopt Opt_SpecConstr                   dflags
+    liberate_case  = gopt Opt_LiberateCase                 dflags
+    late_dmd_anal  = gopt Opt_LateDmdAnal                  dflags
+    static_args    = gopt Opt_StaticArgumentTransformation dflags
+    rules_on       = gopt Opt_EnableRewriteRules           dflags
+    eta_expand_on  = gopt Opt_DoLambdaEtaExpansion         dflags
+    float_joins_on = gopt Opt_FloatJoinPoints              dflags
+    ww_on          = gopt Opt_WorkerWrapper                dflags
+    vectorise_on   = gopt Opt_Vectorise                    dflags
+    static_ptrs    = xopt LangExt.StaticPointers           dflags
 
     maybe_rule_check phase = runMaybe rule_check (CoreDoRuleCheck phase)
 
     maybe_strictness_before phase
       = runWhen (phase `elem` strictnessBefore dflags) CoreDoStrictness
 
-    base_mode = SimplMode { sm_phase      = panic "base_mode"
-                          , sm_names      = []
-                          , sm_dflags     = dflags
-                          , sm_rules      = rules_on
-                          , sm_eta_expand = eta_expand_on
-                          , sm_inline     = True
-                          , sm_case_case  = True }
+    base_mode = SimplMode { sm_phase       = panic "base_mode"
+                          , sm_names       = []
+                          , sm_dflags      = dflags
+                          , sm_rules       = rules_on
+                          , sm_eta_expand  = eta_expand_on
+                          , sm_float_joins = float_joins_on
+                          , sm_inline      = True
+                          , sm_case_case   = True }
 
     simpl_phase phase names iter
       = CoreDoPasses

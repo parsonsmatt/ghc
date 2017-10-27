@@ -1309,8 +1309,8 @@ mkLamTypes :: [Var] -> Type -> Type
 -- ^ 'mkLamType' for multiple type or value arguments
 
 mkLamType v ty
-   | isTyVar v = ForAllTy (TvBndr v Inferred) ty
-   | otherwise = FunTy    (varType v)          ty
+   | isTyVar v = mkInvForAllTy v ty
+   | otherwise = FunTy (varType v) ty
 
 mkLamTypes vs ty = foldr mkLamType ty vs
 

@@ -804,21 +804,24 @@ export_subspec :: { Located ([AddAnn],ImpExpSubSpec) }
 
 
 qcnames :: { ([AddAnn], [Located ImpExpQcSpec]) }
-  : {- empty -}                   { ([],[]) }
-  | qcnames1                      { $1 }
+  : qcnames1                      { $1 }
+  | qcnames1 ','                  { $1 }
 
 qcnames1 :: { ([AddAnn], [Located ImpExpQcSpec]) }     -- A reversed list
-        :  qcnames1 ',' qcname_ext_w_wildcard  {% case (head (snd $1)) of
-                                                    l@(L _ ImpExpQcWildcard) ->
-                                                       return ([mj AnnComma $2, mj AnnDotdot l]
-                                                               ,(snd (unLoc $3)  : snd $1))
-                                                    l -> (ams (head (snd $1)) [mj AnnComma $2] >>
-                                                          return (fst $1 ++ fst (unLoc $3),
-                                                                  snd (unLoc $3) : snd $1)) }
+        :  qcnames1 ',' qcname_ext_w_wildcard  {% let ret@(_, second) = ( fst $1 ++ fst (unLoc $3)
+                                                                        , snd (unLoc $3) : snd $1 )
+                                                  in case (snd $1) of
+                                                          (l@(L _ ImpExpQcWildcard) : _) ->
+                                                             return ([mj AnnComma $2, mj AnnDotdot l]
+                                                                     ,second)
+                                                          (l : _) -> (ams l [mj AnnComma $2] >>
+                                                                return ret)
+                                                          [] -> return ret }
 
 
         -- Annotations re-added in mkImpExpSubSpec
         |  qcname_ext_w_wildcard                   { (fst (unLoc $1),[snd (unLoc $1)]) }
+        | {- empty -}                              { ([], []) }
 
 -- Variable, data constructor or wildcard
 -- or tagged type constructor

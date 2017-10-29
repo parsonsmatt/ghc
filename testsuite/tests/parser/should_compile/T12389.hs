@@ -1,5 +1,13 @@
 module T12389
-  ( T(, A, C, )
+  ( E()
+  , A(A)
+  , B(, B)
+  , C(C, )
+  , D(,D,)
   ) where
 
-data T = A | B
+data A = A
+data B = B
+data C = C
+data D = D
+data E = E
